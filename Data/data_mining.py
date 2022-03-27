@@ -1,6 +1,7 @@
 import csv
 import requests
 from bs4 import BeautifulSoup
+import re
 
 URL = 'http://www.e-himart.co.kr/app/display/showDisplayCategory'
 
@@ -26,13 +27,22 @@ def save_to_csv(names, prices):
         writer.writerow([names[i], prices[i]])
     return
 
+def remove_product_code(product_list):
+    list_to_return = []
+    for name in product_list:
+        p = re.sub(r'[()!+_,/]', '', name)
+        p = re.sub(r'[A-Z0-9-.]{5,12}', '', p)
+        p = re.sub(r'\[[\S\s]+]', '', p)
+        p = re.sub(r'\*[\S\s]+\*', '', p)
+        list_to_return.append(p)
 
-tv_names, tv_prices = extract_products(2, '1011010100')
-fridge_names, fridge_prices = extract_products(2, '1011020100')
-kimchi_names, kimchi_prices = extract_products(2, '1011050100')
-vacuum_names, vacuum_prices = extract_products(1, '1012020100')
+    return list_to_return
 
-names = tv_names + fridge_names + kimchi_names + vacuum_names
-prices = tv_prices + fridge_prices + kimchi_prices + vacuum_prices
+def remove_comma(price_list):
+    list_to_return = []
+    for price in price_list:
+        p = re.sub(r',', '', price)
+        p = int(p)
+        list_to_return.append(p)
 
-save_to_csv(names, prices)
+    return list_to_return
